@@ -20,8 +20,9 @@ LDLIBS := @LIBRARY_FLAGS@
 
 # Preliminary definitions
 
+EXEC ?= athena
 EXE_DIR := bin/
-EXECUTABLE := $(EXE_DIR)athena
+EXECUTABLE := $(EXE_DIR)$(EXEC)
 SRC_FILES := $(wildcard src/*.cpp) \
 	     $(wildcard src/bvals/*.cpp) \
 	     $(wildcard src/coordinates/*.cpp) \
@@ -71,11 +72,17 @@ $(EXECUTABLE) : $(OBJ_FILES)
 
 # Create objects from source files
 
+DEP_FILES := $(OBJ_FILES:.o=.d)
+-include $(DEP_FILES)
+
 $(OBJ_DIR)%.o : %.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MM -MT $@ -MF $(OBJ_DIR)$*.d $<
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # Cleanup
 
 clean :
 	rm -rf $(OBJ_DIR)*
+
+veryclean :
 	rm -rf $(EXECUTABLE)
