@@ -44,8 +44,8 @@ SRC_FILES := $(wildcard src/*.cpp) \
 	     $(MPIFFT_FILE) \
 	     src/pgen/$(PROBLEM_FILE) \
 	     src/pgen/default_pgen.cpp
-OBJ_DIR := obj/
-OBJ_FILES := $(addprefix $(OBJ_DIR),$(notdir $(SRC_FILES:.cpp=.o)))
+OBJ_DIR := obj
+OBJ_FILES := $(addprefix $(OBJ_DIR)/,$(notdir $(SRC_FILES:.cpp=.o)))
 SRC_DIR := $(dir $(SRC_FILES) $(PROB_FILES))
 VPATH := $(SRC_DIR)
 
@@ -75,14 +75,14 @@ $(EXECUTABLE) : $(OBJ_FILES)
 DEP_FILES := $(OBJ_FILES:.o=.d)
 -include $(DEP_FILES)
 
-$(OBJ_DIR)%.o : %.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MM -MT $@ -MF $(OBJ_DIR)$*.d $<
+$(OBJ_DIR)/%.o : %.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MM $< | sed -e '1s/^/$(OBJ_DIR)\//' > $(OBJ_DIR)/$*.d
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # Cleanup
 
 clean :
-	rm -rf $(OBJ_DIR)*
+	rm -rf $(OBJ_DIR)/*
 
 veryclean :
 	rm -rf $(EXECUTABLE)
